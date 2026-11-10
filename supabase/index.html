@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Вход и регистрация</title>
+  <style>
+    body {
+      font: 16px system-ui, sans-serif;
+      max-width: 380px;
+      margin: 60px auto;
+      padding: 0 16px;
+    }
+
+    label { display: block; margin: 14px 0 6px; }
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 10px;
+      font: inherit;
+    }
+
+    button { margin-top: 16px; cursor: pointer; }
+    #toggle { margin-top: 12px; }
+    #message { min-height: 1.5em; }
+  </style>
+</head>
+<body>
+  <h1 id="heading">Регистрация</h1>
+
+  <form id="auth-form">
+    <div id="name-field">
+      <label for="name">Имя</label>
+      <input id="name" name="name" autocomplete="name">
+    </div>
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" autocomplete="email" required>
+
+    <label for="password">Пароль</label>
+    <input
+      id="password"
+      name="password"
+      type="password"
+      autocomplete="new-password"
+      minlength="6"
+      required
+    >
+
+    <button id="submit-button" type="submit">Зарегистрироваться</button>
+  </form>
+
+  <button id="toggle" type="button">Уже есть аккаунт? Войти</button>
+  <p id="message" role="status" aria-live="polite"></p>
+
+  <script type="module">
+    import { createClient } from
+      "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabase = createClient(
+      "https://merigphfolbabyopkaiu.supabase.co",
+      "sb_publishable_T3XlaXNKdQlC-r2vF02HlQ_RZtxuNZi"
+    );
+
+    const form = document.querySelector("#auth-form");
+    const nameField = document.querySelector("#name-field");
+    const nameInput = document.querySelector("#name");
+    const emailInput = document.querySelector("#email");
+    const passwordInput = document.querySelector("#password");
+    const heading = document.querySelector("#heading");
+    const submitButton = document.querySelector("#submit-button");
+    const toggleButton = document.querySelector("#toggle");
+    const message = document.querySelector("#message");
+
+    let isSignUp = true;
+
+    function setMode(signUp) {
+      isSignUp = signUp;
+      nameField.hidden = !isSignUp;
+      nameInput.required = isSignUp;
+      passwordInput.autocomplete = isSignUp ? "new-password" : "current-password";
+
+      heading.textContent = isSignUp ? "Регистрация" : "Вход";
+      submitButton.textContent = isSignUp ? "Зарегистрироваться" : "Войти";
+      toggleButton.textContent = isSignUp
+        ? "Уже есть аккаунт? Войти"
+        : "Нет аккаунта? Зарегистрироваться";
+      message.textContent = "";
+    }
+
+    toggleButton.addEventListener("click", () => setMode(!isSignUp));
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "";
+      submitButton.disabled = true;
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      try {
+        if (isSignUp) {
+          const name = nameInput.value.trim();
+
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { name }
+            }
+          });
+
+          if (error) throw error;
+
+          message.textContent = data.session
+            ? "Регистрация выполнена."
+            : "Проверьте почту и подтвердите адрес электронной почты.";
+        } else {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                message.textContent = `Ошибка входа: ${error.message}`;
+                return;
+            }
+
+            const name = data.user.user_metadata?.name || "Пользователь";
+
+            message.textContent = `Вы вошли как ${name} (${email})`;
+        }
+      } catch (error) {
+        message.textContent = error.message || "Не удалось выполнить запрос.";
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
