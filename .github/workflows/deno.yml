@@ -1,42 +1,44 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# This workflow will install Deno then run `deno lint` and `deno test`.
-# For more information see: https://github.com/denoland/setup-deno
-
-name: Deno
-
+name: Flutter Build Web and APK
 on:
   push:
-    branches: ["mainj"]
-  pull_request:
-    branches: ["mainj"]
-
+    branches: [ "main" ]
 permissions:
-  contents: read
-
+  contents: write
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Setup repo
+      # 1. Клонируем код
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Deno
-        # uses: denoland/setup-deno@v1
-        uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31  # v1.1.2
+      # 2. Устанавливаем Flutter (кеш включён для ускорения)
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          deno-version: v1.x
+          channel: stable
+          cache: true
 
-      # Uncomment this step to verify the use of 'deno fmt' on each commit.
-      # - name: Verify formatting
-      #   run: deno fmt --check
+      # 3. Получаем зависимости
+      - name: Install dependencies
+        working-directory: flutter_application_1
+        run: flutter pub get
 
-      - name: Run linter
-        run: deno lint
+      # 4. Собираем Web (результат появится в build/web)
+      - name: Build Web
+        working-directory: flutter_application_1
+        run: flutter build web
 
-      - name: Run tests
-        run: deno test -A
+   
+
+      # 6. Собираем APK (результат появится в build/app/outputs/flutter-apk/)
+      #- name: Build APK
+      #  run: flutter build apk --release
+
+      # 7. Сохраняем APK как артефакт
+      #- name: Upload APK Artifact
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: android-apk
+      #    path: build/app/outputs/flutter-apk/app-release.apk
+      #    retention-days: 7
