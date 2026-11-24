@@ -10,6 +10,8 @@ dependencies:
   cupertino_ui:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   material_ui:
   flutter_local_notifications: ^23.0.4
 
