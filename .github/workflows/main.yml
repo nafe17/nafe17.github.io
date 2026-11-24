@@ -35,15 +35,3 @@ jobs:
           git add build/web -f
           git commit -m "Auto-build: update build/web [skip ci]" || echo "No changes to commit"
           git push 
-
-      # 6. Собираем APK (результат появится в build/app/outputs/flutter-apk/)
-      #- name: Build APK
-      #  run: flutter build apk --release
-
-      # 7. Сохраняем APK как артефакт
-      #- name: Upload APK Artifact
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: android-apk
-      #    path: build/app/outputs/flutter-apk/app-release.apk
-      #    retention-days: 7
