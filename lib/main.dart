@@ -114,7 +114,7 @@ class _CounterPageState extends State<CounterPage> {
               onPressed: () {
                 Navigator.pushNamed(context, '/second');
               },
-              child: const Text('Перейти на второй экран (pushNamed)'),
+              child: const Text('Перейти на второй !!!!!!!!!!!!!!!экран (pushNamed)'),
             ),
           ],
         ),
