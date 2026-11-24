@@ -27,7 +27,7 @@ jobs:
 
       # 4. Собираем Web (результат появится в build/web)
       - name: Build Web
-        run: flutter build web
+        run: flutter build web --base-href="build/web"
       - name: Commit and Push build/web
         run: |
           git config user.name "github-actions[bot]"
