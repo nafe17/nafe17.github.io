@@ -142,6 +142,7 @@
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             await updateProfile(userCredential.user, { displayName: name });
+            document.getElementById('user-display-name').textContent = name;
         } catch (e) { alert("Ошибка регистрации: " + e.message); }
     });
 
